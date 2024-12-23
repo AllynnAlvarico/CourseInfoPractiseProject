@@ -7,6 +7,8 @@ import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
+import static java.util.function.Predicate.not; // used in line 46
+
 public class CourseRetriever {
     private static final Logger LOG = LoggerFactory.getLogger(CourseRetriever.class);
     public static void main(String[] args) {
@@ -35,9 +37,17 @@ public class CourseRetriever {
         LOG.info("Retrieving course for author '{}'", authorId);
         // this is the class created for the service class which holds the request and retrieval methods
         CourseRetrievalService courseRetrievalService = new CourseRetrievalService();
+
         // this was used for holding the response body payload of the requested id on the API
-        List<PluralsightCourse> coursesToStore = courseRetrievalService.getCoursesFor(authorId);
+        List<PluralsightCourse> coursesToStore = courseRetrievalService.getCoursesFor(authorId)
+                .stream()
+                // 1st approach to this filter is
+                // .filter(course -> !course.isRetired())
+                // 2nd approach
+                .filter(not(PluralsightCourse::isRetired))
+                .toList();
+
         // this is to display the payload of the API Object requested
-        LOG.info("Retrieved the following courses {}", coursesToStore);
+        LOG.info("Retrieved the following {} courses {}", coursesToStore.size() , coursesToStore);
     }
 }

@@ -1,5 +1,19 @@
 package com.pluralsight.courseinfo.cli.service;
 
-public record PluralsightCourse(String id, String title, String duration, String contentUrl, boolean isRetired) {
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
+import java.time.Duration;
+import java.time.LocalTime;
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+public record PluralsightCourse(String id, String title, String duration, String contentUrl, boolean isRetired) {
+    // duration = "00:05:37"
+    public long durationInMinutes() {
+
+        return Duration.between(
+                LocalTime.MIN,
+                // pass the string duration to this parse method, which will turn it into a local time object
+                LocalTime.parse(duration())
+        ).toMinutes();
+    }
 }

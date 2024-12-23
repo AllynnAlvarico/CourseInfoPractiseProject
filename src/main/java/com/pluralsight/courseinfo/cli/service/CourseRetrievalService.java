@@ -1,5 +1,9 @@
 package com.pluralsight.courseinfo.cli.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -29,7 +33,9 @@ public class CourseRetrievalService {
             .followRedirects(HttpClient.Redirect.ALWAYS)
             .build();
     // ======================================================================================================
-
+    //OBJECT_MAPPER is a translator in other words.
+    // it converts the JSON format data into JAVA Object Data
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
 
     public List<PluralsightCourse> getCoursesFor(String authorId){
@@ -49,7 +55,7 @@ public class CourseRetrievalService {
             // if nothing else give exception to exit gracefully!
             return switch (response.statusCode()) {
 //                case 200 -> response.body();
-                case 200 -> null;
+                case 200 -> getPluralsightCourses(response);
 //                case 404 -> "";
                 case 404 -> List.of();
                 default -> throw  new RuntimeException("Pluralsight API call failed with status code " + response.statusCode());
@@ -59,6 +65,34 @@ public class CourseRetrievalService {
         catch (IOException | InterruptedException e){
             throw new RuntimeException("Could not call Pluralsight API", e);
         }
+    }
+    // HttpResponse<String> byRef_response:
+    //                      This is the input parameter.
+    //                      It represents the body of the HTTP response you got from the API call.
+    //                      The response is in JSON format (a way of structuring data), which needs to be converted to Java objects.
+    // throws JsonProcessingException:
+    //                      This means the method may throw an exception if the JSON cannot be parsed correctly.
+    private static List<PluralsightCourse> getPluralsightCourses(HttpResponse<String> byRef_response) throws JsonProcessingException {
+        // OBJECT_MAPPER:
+        //        A tool from the Jackson library used to convert between JSON strings and Java objects.
+        //JavaType returnType:
+        //        Think of this as a blueprint that describes the type of object you're expecting. In this case:
+        //              List.class: You're saying, "I expect a list."
+        //              PluralsightCourse.class: The list will contain objects of type PluralsightCourse.
+        //          Essentially, this line defines the "shape" of the data you're expecting: a list of PluralsightCourse.
+        JavaType returnType = OBJECT_MAPPER.getTypeFactory()
+                        .constructCollectionType(List.class, PluralsightCourse.class);
+
+        // byRef_response.body():
+        //          This gets the body of the HTTP response, which is a JSON string.
+        // OBJECT_MAPPER.readValue(...):
+        //          This is the magic part. The OBJECT_MAPPER uses the blueprint (returnType) to:
+        //              ->Read the JSON string.
+        //              ->Break it apart based on the structure.
+        //              ->Convert it into a List<PluralsightCourse>.
+        return OBJECT_MAPPER.readValue(byRef_response.body(), returnType);
+
+        // check discord in "my-private-channel" for better understanding with an analogy
     }
 
 }
