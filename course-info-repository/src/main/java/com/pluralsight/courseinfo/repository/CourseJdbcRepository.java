@@ -4,12 +4,13 @@ import com.pluralsight.courseinfo.domain.Course;
 import org.h2.jdbcx.JdbcDataSource;
 
 import javax.sql.DataSource;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
-public class CourseJdbcRepository implements CourseRepository{
+class CourseJdbcRepository implements CourseRepository{
 
     /*
      * H2_DATABASE_URL is like a directions to a storage or like a
@@ -74,6 +75,52 @@ public class CourseJdbcRepository implements CourseRepository{
 
     @Override
     public List<Course> getAllCourses() {
-        return null;
+        // Refer to Line 51
+        try(Connection connection = dataSource.getConnection()){
+
+        //  A Statement is used to execute SQL queries on the database.
+            Statement statement = connection.createStatement();
+        //  This allows us to send a command like "Give me all the rows from the COURSES table."
+        //  The SQL query "SELECT * FROM COURSES" retrieves all rows from the COURSES table.
+            ResultSet resultSet = statement.executeQuery("SELECT * FROM COURSES");
+
+
+            List<Course> courses = new ArrayList<>();
+        //  The resultSet.next() moves to the next row in the results.
+        //  The loop continues until all rows have been processed.
+            while (resultSet.next()){
+        /*
+         *  For each row in the ResultSet:
+         *  resultSet.getString(1) retrieves the value from the first column (e.g., id).
+         *  resultSet.getString(2) retrieves the value from the second column (e.g., name).
+         *  resultSet.getLong(3) retrieves the value from the third column (e.g., length).
+         *  resultSet.getNString(4) retrieves the value from the fourth column (e.g., url).
+         *  These values are used to create a new Course object.
+         */
+                Course course =
+                        new Course(
+                                resultSet.getString(1),
+                                resultSet.getString(2),
+                                resultSet.getLong(3),
+                                resultSet.getNString(4));
+                courses.add(course);
+
+            }
+        //  Collections.unmodifiableList(courses) makes the list read-only, preventing modifications outside this method.
+        //  This ensures the integrity of the list.
+            return Collections.unmodifiableList(courses);
+        }catch (SQLException e) {
+            throw  new RepositoryException("Failed to retrieve courses", e);
+        }
+        /*
+         *      SUMMARY of List<Course> getAllCourses()
+         * Open a database connection.
+         * Create a statement to execute SQL queries.
+         * Run a query to fetch all rows from the COURSES table.
+         * For each row, create a Course object.
+         * Add each Course object to a list.
+         * Return the list as read-only.
+         * If something goes wrong, handle the error gracefully.
+         */
     }
 }
