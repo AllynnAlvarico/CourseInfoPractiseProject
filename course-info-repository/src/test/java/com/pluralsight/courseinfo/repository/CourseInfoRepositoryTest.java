@@ -26,8 +26,8 @@ public class CourseInfoRepositoryTest {
     // ExpectedGeneralException referenced
     @DisplayName("Test IllegalArgumentException for invalid parameters")
     public void filled(String byTest_id, String byTest_name, String byTest_url) {
-    // This code is provided by GPT as I do not know how to implement testing
-    // But now I can add this to my tool as testing kit for a Class XD
+        // This code is provided by GPT as I do not know how to implement testing
+        // But now I can add this to my tool as testing kit for a Class XD
         // -->
         String final_Id = "null".equals(byTest_id) ? null : byTest_id;
         String final_Name = "null".equals(byTest_name) ? null : byTest_name;
@@ -38,6 +38,6 @@ public class CourseInfoRepositoryTest {
                 () -> new Course(final_Id, final_Name, 123456, final_Url),
                 "Expected IllegalArgumentException for invalid parameters"
         );
-    // <--
+        // <--
     }
 }
