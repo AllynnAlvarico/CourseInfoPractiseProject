@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -31,12 +32,17 @@ class CourseStorageServiceTest {
         courseStorageService.storePluralsightCourses(List.of(ps1));
 
         Course expected = // this is the expected results
-                new Course("1", "Title 1", 100, "https://app.pluralsight.com/url-1");
+                new Course(
+                        "1",
+                        "Title 1",
+                        100,
+                        "https://app.pluralsight.com/url-1",
+                        Optional.empty());
         // test if they are all equal
         assertEquals(List.of(expected), repository.getAllCourses());
 
     }
-
+    // Fake or Mock CourseRepository Class
     static class InMemoryCourseService implements CourseRepository {
         private final List<Course> courses = new ArrayList<>();
 
@@ -48,6 +54,11 @@ class CourseStorageServiceTest {
         @Override
         public List<Course> getAllCourses() {
             return courses;
+        }
+
+        @Override
+        public void addNotes(String id, String notes) {
+            throw new UnsupportedOperationException();
         }
     }
 }

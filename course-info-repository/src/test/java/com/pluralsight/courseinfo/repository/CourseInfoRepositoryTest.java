@@ -5,6 +5,8 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
+import java.util.Optional;
+
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class CourseInfoRepositoryTest {
@@ -35,7 +37,7 @@ public class CourseInfoRepositoryTest {
 
         assertThrows(
                 IllegalArgumentException.class,
-                () -> new Course(final_Id, final_Name, 123456, final_Url),
+                () -> new Course(final_Id, final_Name, 123456, final_Url, Optional.empty()),
                 "Expected IllegalArgumentException for invalid parameters"
         );
         // <--

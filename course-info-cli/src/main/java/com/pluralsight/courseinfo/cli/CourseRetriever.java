@@ -1,7 +1,9 @@
 package com.pluralsight.courseinfo.cli;
 
 import com.pluralsight.courseinfo.cli.service.CourseRetrievalService;
+import com.pluralsight.courseinfo.cli.service.CourseStorageService;
 import com.pluralsight.courseinfo.cli.service.PluralsightCourse;
+import com.pluralsight.courseinfo.repository.CourseRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,6 +40,10 @@ public class CourseRetriever {
         // this is the class created for the service class which holds the request and retrieval methods
         CourseRetrievalService courseRetrievalService = new CourseRetrievalService();
 
+        CourseRepository courseRepository = CourseRepository.openCourseRepository("./courses.db");
+
+        CourseStorageService courseStorageService = new CourseStorageService(courseRepository);
+
         // this was used for holding the response body payload of the requested id on the API
         List<PluralsightCourse> coursesToStore = courseRetrievalService.getCoursesFor(authorId)
                 .stream()
@@ -49,5 +55,9 @@ public class CourseRetriever {
 
         // this is to display the payload of the API Object requested
         LOG.info("Retrieved the following {} courses {}", coursesToStore.size() , coursesToStore);
+
+        courseStorageService.storePluralsightCourses(coursesToStore);
+
+        LOG.info("Courses successfully stored");
     }
 }

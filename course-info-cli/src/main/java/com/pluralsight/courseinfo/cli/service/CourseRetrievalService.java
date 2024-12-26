@@ -37,7 +37,6 @@ public class CourseRetrievalService {
     // it converts the JSON format data into JAVA Object Data
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
-
     public List<PluralsightCourse> getCoursesFor(String authorId){
         //HttpRequest is the Class that will build and request the data that you wanted.
         // and with this, it would allow to build and invoke the request
@@ -73,6 +72,7 @@ public class CourseRetrievalService {
     // throws JsonProcessingException:
     //                      This means the method may throw an exception if the JSON cannot be parsed correctly.
     private static List<PluralsightCourse> getPluralsightCourses(HttpResponse<String> byRef_response) throws JsonProcessingException {
+//        OBJECT_MAPPER.registerModule(new Jdk8Module());
         // OBJECT_MAPPER:
         //        A tool from the Jackson library used to convert between JSON strings and Java objects.
         //JavaType returnType:
