@@ -6,16 +6,29 @@ import org.glassfish.jersey.grizzly2.httpserver.GrizzlyHttpServerFactory;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.bridge.SLF4JBridgeHandler;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
+import java.util.Properties;
+import java.util.logging.LogManager;
 
 public class CourseServer {
+    static {
+        LogManager.getLogManager().reset();
+        SLF4JBridgeHandler.install();
+    }
     private static final Logger LOG = LoggerFactory.getLogger(CourseServer.class);
     private static final String BASE_URI = "http://localhost:8080/";
     public static void main(String[] args) {
-        LOG.info("Starting HTTP server");
+        // with this we can externalised the configuration in line 30
+        String databaseFilename = loadDatabaseFilename();
+
+        LOG.info("Starting HTTP server with database {}", databaseFilename);
         // This opens or creates a connection to a database file called courses.db in the current directory (./).
-        CourseRepository courseRepository = CourseRepository.openCourseRepository("./courses.db");
+//        CourseRepository courseRepository = CourseRepository.openCourseRepository("./courses.db");
+        CourseRepository courseRepository = CourseRepository.openCourseRepository(databaseFilename);
         // ResourceConfig:
         //          Creates a configuration object for the server.
         //          Think of it as setting up the rules for what the server will do.
@@ -36,6 +49,17 @@ public class CourseServer {
         //      ->Opens a database (courses.db) to manage course data.
         //      ->Configures the server to respond to HTTP requests, specifically those handled by CourseResource.
         //      ->Starts the server at the specified base URL (BASE_URI).
+    }
+
+    private static String loadDatabaseFilename() {
+        try (InputStream propertiesStream = CourseServer.class.getResourceAsStream("server.properties")){
+            Properties properties = new Properties();
+            properties.load(propertiesStream);
+            return properties.getProperty("course-info.database");
+        } catch (IOException e){
+            throw new IllegalArgumentException("Could not load database filename");
+        }
+
     }
     /**
      * Analogy:
