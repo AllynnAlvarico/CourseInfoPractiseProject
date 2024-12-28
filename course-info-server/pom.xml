@@ -13,7 +13,7 @@
     <artifactId>course-info-server</artifactId>
 
     <properties>
-        <slf4j.version>2.0.16</slf4j.version>
+<!--        <slf4j.version>2.0.16</slf4j.version>-->
         <jersey.version>3.1.7</jersey.version>
     </properties>
 
@@ -27,13 +27,13 @@
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
-            <version>${slf4j.version}</version>
+<!--            <version>${slf4j.version}</version>-->
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-simple</artifactId>
-            <version>${slf4j.version}</version>
-            <scope>runtime</scope>
+<!--            <version>${slf4j.version}</version>-->
+<!--            <scope>runtime</scope>-->
         </dependency>
 
         <dependency>
@@ -74,11 +74,47 @@
         <dependency>
             <groupId>com.fasterxml.jackson.datatype</groupId>
             <artifactId>jackson-datatype-jdk8</artifactId>
-            <version>2.15.2</version> <!-- Match this with your Jackson version -->
+            <version>${jackson.version}</version> <!-- Match this with your Jackson version -->
             <scope>runtime</scope>
         </dependency>
-
-
     </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>3.6.0</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <configuration>
+                            <transformers>
+                            <!--    The maven‑shade‑plugin supports a concept called transformers,
+                                    and the first transformer that we're going to add ensures
+                                    that the manifest of the generated .jar file will point
+                                    to our CourseServer class as the main class to be started when running this .jar.
+                            -->
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                    <mainClass>com.pluralsight.courseinfo.server.CourseServer</mainClass>
+                                </transformer>
+                            <!--    And this transformer has everything to do with the conflicts
+                                    that may arise between different .jar files when you copy all
+                                    of the resources into a single .jar file. Going into the details
+                                    of this issue goes far beyond this course, but several .jar files
+                                    contain similarly‑named configuration files, and this transformer
+                                    makes sure that they are merged rather than overwritten.
+                            -->
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
+                            </transformers>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 
 </project>

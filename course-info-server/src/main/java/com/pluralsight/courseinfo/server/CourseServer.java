@@ -22,7 +22,7 @@ public class CourseServer {
     private static final Logger LOG = LoggerFactory.getLogger(CourseServer.class);
     private static final String BASE_URI = "http://localhost:8080/";
     public static void main(String[] args) {
-        // with this we can externalised the configuration in line 30
+        // with this we can externalise the configuration in line 30
         String databaseFilename = loadDatabaseFilename();
 
         LOG.info("Starting HTTP server with database {}", databaseFilename);
@@ -51,15 +51,23 @@ public class CourseServer {
         //      ->Starts the server at the specified base URL (BASE_URI).
     }
 
+    // new method 27/12/2024 1 am
+    // this method allows you to call or use external configuration to call a specific file
+    // for example is the File of the database path that is stored here.
     private static String loadDatabaseFilename() {
-        try (InputStream propertiesStream = CourseServer.class.getResourceAsStream("server.properties")){
+        try (InputStream propertiesStream = CourseServer.class.getResourceAsStream("/server.properties")){
+
+            if (propertiesStream == null) {
+                throw new IllegalArgumentException("Could not find server.properties file.");
+            }
+
             Properties properties = new Properties();
             properties.load(propertiesStream);
+
             return properties.getProperty("course-info.database");
         } catch (IOException e){
             throw new IllegalArgumentException("Could not load database filename");
         }
-
     }
     /**
      * Analogy:
